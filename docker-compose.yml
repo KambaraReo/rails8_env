@@ -1,0 +1,36 @@
+services:
+  web:
+    build: .
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/myapp
+      - gem_data:/usr/local/bundle
+    depends_on:
+      - db
+    environment:
+      RAILS_ENV: development
+    stdin_open: true
+    tty: true
+    env_file:
+      - .env
+  db:
+    image: mysql:8.0
+    ports:
+      - 3306:3306
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - db-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DB}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      TZ: "Asia/Tokyo"
+    env_file:
+      - .env
+volumes:
+  db-data:
+  gem_data:
+    driver: local
